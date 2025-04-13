@@ -7,31 +7,20 @@ const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
     const input: UserCreateInput = await readBody(event);
 
-    console.log(input)
-
-    if (!input.email || !input.password || !input.userType) {
-        throw createError({ statusCode: 400, message: 'Email, password, and userType are required' });
-    }
-
-
     const existingUser = await prisma.user.findUnique({
         where: { email: input.email },
     });
 
+    
+
     if (existingUser) {
+        console.error('Пользователь с таким email уже существует:', input.email);
         throw createError({ statusCode: 400, message: 'User with this email already exists' });
     }
 
-    if (input.userType === 'LEGAL') {
-        if (!input.companyName || !input.bin || !input.legalAddress) {
-            throw createError({
-                statusCode: 400,
-                message: 'Company name, BIN, and legal address are required for legal users',
-            });
-        }
-    }
 
     const hashedPassword = await bcrypt.hash(input.password, 12);
+
 
     const user = await prisma.user.create({
         data: {
@@ -47,6 +36,8 @@ export default defineEventHandler(async (event) => {
             createdAt: input.createdAt ?? new Date(),
         },
     });
+
+    console.log('Пользователь успешно создан:', user);
 
     return {
         success: true,

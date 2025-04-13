@@ -3,7 +3,7 @@
     <HeaderComponent />
 
     <main class="flex-grow container mx-auto py-6 px-4">
-      <NuxtPage />
+      <NuxtLayout />
     </main>
 
     <FooterComponent/>
